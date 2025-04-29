@@ -27,36 +27,30 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_message = update.message.text
         user_id = update.message.from_user.id
 
+        # Добавляем сообщение пользователя в память
         memory.add_message(user_id, "user", user_message)
 
+        # Получаем историю диалога
         conversation = memory.get_conversation(user_id)
-        messages = [{"role": role, "content": content} for role, content in conversation]
-        messages.insert(0, {
-            "role": "system",
-            "content": (
-                "Ты — Telegram-бот на базе ChatGPT, созданный специально для репетиторов по иностранным языкам. "
-                "Ты помогаешь готовить материалы к урокам, проверять письменные задания, придумывать упражнения под уровень ученика, "
-                "переводить тексты, давать грамматические пояснения — всё в одном чате, без копипасты. "
-                "Сократи рутину и помоги преподавателю сосредоточиться на обучении. "
-                "Отвечай понятно, профессионально, с фокусом на практическую пользу для преподавателя."
-            )
-        })
 
+        # Запрос к OpenAI
         response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=messages,
-            temperature=0.7,
-            max_tokens=500,
+            model="gpt-4",  # Можно заменить на "gpt-4", если у тебя есть доступ
+            messages=conversation
         )
 
-        bot_reply = response['choices'][0]['message']['content']
-        memory.add_message(user_id, "assistant", bot_reply)
+        # Ответ ассистента
+        reply = response["choices"][0]["message"]["content"]
 
-        await update.message.reply_text(bot_reply)
+        # Сохраняем ответ в память
+        memory.add_message(user_id, "assistant", reply)
+
+        # Отправляем ответ пользователю
+        await update.message.reply_text(reply)
 
     except Exception as e:
-        logging.error(f"Ошибка при обращении к OpenAI: {e}")
-        await update.message.reply_text("Произошла ошибка при работе с ИИ. Попробуй позже.")
+        logging.error(f"Ошибка при обработке сообщения: {e}")
+        await update.message.reply_text("Произошла ошибка при обращении к GPT. Попробуй позже.")
 
 
 
