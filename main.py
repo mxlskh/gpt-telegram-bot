@@ -19,7 +19,11 @@ memory = ConversationMemory(max_messages=5)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Привет! Скорее всего сосать, но все же попробуй написать еще что-нибудь")
 
+
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+   try:
+    await update.message.chat.send_action(action="typing")  # "набирает сообщение..."
     user_message = update.message.text
     user_id = update.message.from_user.id
 
@@ -41,12 +45,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=messages
+        temperature=0.7,
+        max_tokens=500,
     )
 
     bot_reply = response['choices'][0]['message']['content']
     memory.add_message(user_id, "assistant", bot_reply)
 
     await update.message.reply_text(bot_reply)
+
+     except Exception as e:
+        logging.error(f"Ошибка при обращении к OpenAI: {e}")
+        await update.message.reply_text("Произошла ошибка при работе с ИИ. Попробуй позже.")
 
 if __name__ == '__main__':
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
