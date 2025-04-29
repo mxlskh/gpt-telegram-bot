@@ -22,7 +22,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
- try:
+    try:
         await update.message.chat.send_action(action="typing")
         user_message = update.message.text
         user_id = update.message.from_user.id
@@ -57,6 +57,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logging.error(f"Ошибка при обращении к OpenAI: {e}")
         await update.message.reply_text("Произошла ошибка при работе с ИИ. Попробуй позже.")
+
+
 
 if __name__ == '__main__':
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
