@@ -33,11 +33,17 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Получаем историю диалога
         conversation = memory.get_conversation(user_id)
 
+        # Логируем запрос
+        logging.info(f"Запрос к GPT: {conversation}")
+
         # Запрос к OpenAI
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # Можно заменить на "gpt-4", если у тебя есть доступ
+            model="gpt-3.5-turbo",  # Обратите внимание на корректный формат модели
             messages=conversation
         )
+
+        # Логируем ответ
+        logging.info(f"Ответ от GPT: {response}")
 
         # Ответ ассистента
         reply = response["choices"][0]["message"]["content"]
@@ -51,6 +57,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logging.error(f"Ошибка при обработке сообщения: {e}")
         await update.message.reply_text("Произошла ошибка при обращении к GPT. Попробуй позже.")
+
 
 
 
