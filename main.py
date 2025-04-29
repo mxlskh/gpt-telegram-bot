@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 memory = ConversationMemory(max_messages=5)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Привет! Я твой цифровой ассистент. Напиши мне что-нибудь.")
+    await update.message.reply_text("Привет! Скорее всего сосать, но все же попробуй написать еще что-нибудь")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_message = update.message.text
@@ -27,7 +27,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     conversation = memory.get_conversation(user_id)
     messages = [{"role": role, "content": content} for role, content in conversation]
-    messages.insert(0, {"role": "system", "content": "Ты — ассистент, говорящий в стиле уверенного предпринимателя, с долей юмора."})
+    messages.insert(0, {
+    "role": "system",
+    "content": (
+        "Ты — Telegram-бот на базе ChatGPT, созданный специально для репетиторов по иностранным языкам. "
+        "Ты помогаешь готовить материалы к урокам, проверять письменные задания, придумывать упражнения под уровень ученика, "
+        "переводить тексты, давать грамматические пояснения — всё в одном чате, без копипасты. "
+        "Сократи рутину и помоги преподавателю сосредоточиться на обучении. "
+        "Отвечай понятно, профессионально, с фокусом на практическую пользу для преподавателя."
+    )
+})
 
     response = openai.ChatCompletion.create(
         model="gpt-4",
