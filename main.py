@@ -12,12 +12,15 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
 
+print(f"API ключ: {openai.api_key}")  # ← сюда
+
+
 logging.basicConfig(level=logging.INFO)
 
 memory = ConversationMemory(max_messages=5)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Привет! Скорее всего сосать, но все же попробуй написать еще что-нибудь")
+    await update.message.reply_text("Привет! Осталось подключить GPT")
 
 
 
