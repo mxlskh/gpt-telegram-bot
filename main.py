@@ -67,12 +67,4 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     print("Бот запущен...")
-    PORT = int(os.environ.get("PORT", 8443))
-WEBHOOK_URL = f"https://{os.environ.get('RAILWAY_STATIC_URL')}/webhook"  # Railway автоматически задаёт эту переменную
-
-app.run_webhook(
-    listen="0.0.0.0",
-    port=PORT,
-    webhook_url=WEBHOOK_URL
-)
-
+    app.run_polling()
