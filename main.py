@@ -38,7 +38,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # Запрос к OpenAI
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # Обратите внимание на корректный формат модели
+            model="gpt-4o",  # Обратите внимание на корректный формат модели
             messages=conversation
         )
 
