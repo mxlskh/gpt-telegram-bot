@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO)
 memory = ConversationMemory(max_messages=5)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Привет! Осталось подключить GPT")
+    await update.message.reply_text("Привет! Осталось подключить чат GPT")
 
 
 
