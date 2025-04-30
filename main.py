@@ -65,14 +65,14 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", 8443))
     print(f"Webhook URL: {WEBHOOK_URL}")
     print(f"Port: {os.getenv('PORT')}")
     app.run_webhook(
         listen="0.0.0.0",
         port=port,
-        url_path="webhook",
         webhook_url=WEBHOOK_URL,
+        webhook_path="/webhook"
     )
 
 if __name__ == "__main__":
