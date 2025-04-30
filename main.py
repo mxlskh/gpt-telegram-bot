@@ -71,8 +71,8 @@ def main():
         listen="0.0.0.0",
         port=port,
         webhook_url=WEBHOOK_URL,
+        webhook_path="/webhook"
     )
 
 if __name__ == "__main__":
     main()
-    ##
