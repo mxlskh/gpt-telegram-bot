@@ -10,6 +10,7 @@ load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+client = openai.OpenAI(api_key=OPENAI_API_KEY)
 openai.api_key = OPENAI_API_KEY
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
@@ -47,7 +48,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logging.info(f"Ответ от GPT: {response}")
 
         # Ответ ассистента
-        reply = response["choices"][0]["message"]["content"]
+        reply = response.choices[0].message.content
 
         # Сохраняем ответ в память
         memory.add_message(user_id, "assistant", reply)
