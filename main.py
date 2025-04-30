@@ -65,6 +65,8 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     port = int(os.getenv("PORT", 8000))
+    print(f"Webhook URL: {WEBHOOK_URL}")
+    print(f"Port: {os.getenv('PORT')}")
     app.run_webhook(
         listen="0.0.0.0",
         port=port,
