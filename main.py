@@ -1,5 +1,6 @@
 import logging
 import os
+import asyncio
 import openai
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
@@ -59,7 +60,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logging.error(f"Ошибка при обработке сообщения: {e}")
         await update.message.reply_text("Произошла ошибка при обращении к GPT. Попробуй позже.")
 
-def main():
+async def main():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
@@ -67,11 +68,12 @@ def main():
     port = int(os.getenv("PORT", 8000))
     print(f"Webhook URL: {WEBHOOK_URL}")
     print(f"Port: {os.getenv('PORT')}")
-    app.run_webhook(
+    await app.run_webhook(
         listen="0.0.0.0",
         port=port,
         webhook_url=WEBHOOK_URL,
     )
 
 if __name__ == "__main__":
+    asyncio.run(main())
     main()
