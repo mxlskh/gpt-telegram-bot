@@ -12,8 +12,6 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
 
-print(f"API ключ: {openai.api_key}")  # ← сюда
-
 
 logging.basicConfig(level=logging.INFO)
 
@@ -69,4 +67,12 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     print("Бот запущен...")
-    app.run_polling()
+    PORT = int(os.environ.get("PORT", 8443))
+WEBHOOK_URL = f"https://{os.environ.get('RAILWAY_STATIC_URL')}/webhook"  # Railway автоматически задаёт эту переменную
+
+app.run_webhook(
+    listen="0.0.0.0",
+    port=PORT,
+    webhook_url=WEBHOOK_URL
+)
+
