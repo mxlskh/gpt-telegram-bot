@@ -27,31 +27,22 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_message = update.message.text
         user_id = update.message.from_user.id
 
-        # Добавляем сообщение пользователя в память
         memory.add_message(user_id, "user", user_message)
 
-        # Получаем историю диалога
         conversation = memory.get_conversation(user_id)
 
-        # Логируем запрос
         logging.info(f"Запрос к GPT: {conversation}")
 
-        # Запрос к OpenAI
         response = openai.ChatCompletion.create(
             model="gpt-4o",  # Обратите внимание на корректный формат модели
             messages=conversation
         )
-
-        # Логируем ответ
         logging.info(f"Ответ от GPT: {response}")
 
-        # Ответ ассистента
         reply = response["choices"][0]["message"]["content"]
 
-        # Сохраняем ответ в память
         memory.add_message(user_id, "assistant", reply)
 
-        # Отправляем ответ пользователю
         await update.message.reply_text(reply)
 
     except Exception as e:
