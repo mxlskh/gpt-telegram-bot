@@ -34,7 +34,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logging.info(f"Запрос к GPT: {conversation}")
 
         response = openai.ChatCompletion.create(
-            model="gpt-4o",  # Обратите внимание на корректный формат модели
+            model="gpt-3.5turbo",  # Обратите внимание на корректный формат модели
             messages=conversation
         )
         logging.info(f"Ответ от GPT: {response}")
