@@ -85,7 +85,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logging.info(f"Текущие параметры: роль={context.user_data.get('role')}, язык={context.user_data.get('language')}, цель={context.user_data.get('goal')}")
         await update.message.chat.send_action(action="typing")
         user_message = update.message.text
-        logging.info(f"Получено сообщение от пользователя: {user_message}")
         logging.info(f"Текущие параметры: роль={context.user_data.get('role')}, язык={context.user_data.get('language')}, цель={context.user_data.get('goal')}")
         user_id = update.message.from_user.id
 
