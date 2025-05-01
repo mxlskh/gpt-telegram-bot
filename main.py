@@ -1,7 +1,7 @@
 import logging
 import os
 import openai
-from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, BotCommand
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler,
     ContextTypes, filters, ConversationHandler
@@ -87,12 +87,34 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         memory.add_message(user_id, "user", user_message)
         conversation = memory.get_conversation(user_id)
+        messages = [{"role": role, "content": content} for role, content in conversation]
 
-        logging.info(f"Запрос к GPT: {conversation}")
+        # Добавляем system prompt на основе выбранной роли, языка и цели
+        role = context.user_data.get("role")
+        language = context.user_data.get("language")
+        goal = context.user_data.get("goal")
+
+        if role == "Преподаватель" and language:
+            system_prompt = (
+                f"Ты — ассистент преподавателя по {language} языку. Помогай с созданием упражнений, текстов, объяснением грамматики, "
+                f"проверкой письменных заданий. Отвечай чётко и профессионально."
+            )
+        elif role == "Ученик" and language and goal:
+            system_prompt = (
+                f"Ты — цифровой помощник ученика, изучающего {language} язык. Помогай с практикой в разделе '{goal}': объясняй, тренируй, давай примеры."
+            )
+        else:
+            system_prompt = (
+                "Ты — универсальный помощник по изучению иностранных языков. Отвечай по теме, будь полезным и дружелюбным."
+            )
+
+        messages.insert(0, {"role": "system", "content": system_prompt})
+
+        logging.info(f"Запрос к GPT: {messages}")
 
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=conversation
+            messages=messages
         )
 
         reply = response["choices"][0]["message"]["content"]
@@ -103,6 +125,19 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logging.error(f"Ошибка при обработке сообщения: {e}")
         await update.message.reply_text("Произошла ошибка при обращении к GPT. Попробуй позже.")
+
+async def clear_memory(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.message.from_user.id
+    memory.memory[user_id] = []
+    await update.message.reply_text("🧠 Память очищена. Я больше не помню предыдущие сообщения.")
+
+async def setup_commands(app):
+    commands = [
+        BotCommand("start", "Перезапустить бота"),
+        BotCommand("menu", "Выбор роли и языка"),
+        BotCommand("clear", "Очистить память чата")
+    ]
+    await app.bot.set_my_commands(commands)
 
 def main():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
@@ -118,18 +153,25 @@ def main():
     )
 
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("clear", clear_memory))
     app.add_handler(conv_handler)
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     port = int(os.getenv("PORT", 8000))
     print(f"Webhook URL: {WEBHOOK_URL}")
     print(f"Port: {os.getenv('PORT')}")
-    app.run_webhook(
-        listen="0.0.0.0",
-        port=port,
-        url_path="webhook",
-        webhook_url=WEBHOOK_URL,
-    )
+
+    async def run():
+        await setup_commands(app)
+        app.run_webhook(
+            listen="0.0.0.0",
+            port=port,
+            url_path="webhook",
+            webhook_url=WEBHOOK_URL,
+        )
+
+    import asyncio
+    asyncio.run(run())
 
 if __name__ == "__main__":
     main()
