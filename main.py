@@ -87,12 +87,35 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         memory.add_message(user_id, "user", user_message)
         conversation = memory.get_conversation(user_id)
+        messages = [{"role": role, "content": content} for role, content in conversation]
 
-        logging.info(f"Запрос к GPT: {conversation}")
+        # Добавляем system prompt на основе выбранной роли, языка и цели
+        role = context.user_data.get("role")
+        language = context.user_data.get("language")
+        goal = context.user_data.get("goal")
+
+        if role == "Преподаватель" and language:
+            system_prompt = (
+                f"Ты — ассистент преподавателя по {language} языку. Помогай с созданием упражнений, текстов, объяснением грамматики, "
+                f"проверкой письменных заданий. Отвечай чётко и профессионально."
+            )
+        elif role == "Ученик" and language and goal:
+            system_prompt = (
+                f"Ты — цифровой помощник ученика, изучающего {language} язык. Твоя задача — помогать в разделе '{goal}': "
+                f"объясняй правила, давай упражнения, проверяй ответы и давай обратную связь."
+            )
+        else:
+            system_prompt = (
+                "Ты — универсальный помощник по изучению иностранных языков. Отвечай по теме, будь полезным и дружелюбным."
+            )
+
+        messages.insert(0, {"role": "system", "content": system_prompt})
+
+        logging.info(f"Запрос к GPT: {messages}")
 
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=conversation
+            messages=messages
         )
 
         reply = response["choices"][0]["message"]["content"]
